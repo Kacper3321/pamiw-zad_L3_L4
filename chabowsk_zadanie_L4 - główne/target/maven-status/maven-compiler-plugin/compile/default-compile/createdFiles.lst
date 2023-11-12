@@ -1,8 +1,0 @@
-com\example\myapi\BookController.class
-com\example\myapi\MyapiApplication.class
-com\example\myapi\BookRepository.class
-com\example\myapi\Book.class
-com\example\myapi\BookDataLoader.class
-com\example\myapi\BookServiceImpl.class
-com\example\myapi\ResourceNotFoundException.class
-com\example\myapi\BookService.class
