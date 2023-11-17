@@ -1,5 +1,8 @@
 package com.example.myapi;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -23,6 +26,9 @@ public class Book {
     @NotNull(message = "Rok nie może być pusty")
     @Column(nullable = false)
     private Integer year;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CheckOut> checkouts = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -54,5 +60,13 @@ public class Book {
 
     public void setYear(int year) {
         this.year = year;
+    }
+
+    public Set<CheckOut> getCheckouts() {
+        return checkouts;
+    }
+    
+    public void setCheckouts(Set<CheckOut> checkouts) {
+        this.checkouts = checkouts;
     }
 }

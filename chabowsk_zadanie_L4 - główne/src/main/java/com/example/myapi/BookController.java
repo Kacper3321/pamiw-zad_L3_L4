@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class BookController {
@@ -20,24 +21,42 @@ public class BookController {
         this.bookService = bookService;
     }
 
-    @GetMapping("${api.base.url}")
-    public ResponseEntity<List<Book>> getAllBooks() {
+    @GetMapping("${api.book.base.url}")
+    public ResponseEntity<List<BookDTO>> getAllBooks() {
         List<Book> books = bookService.getAllBooks();
-        return new ResponseEntity<>(books, HttpStatus.OK);
+        List<BookDTO> booksDTO = books.stream().map(BookServiceImpl::bookConvertToDTO).collect(Collectors.toList());
+        return new ResponseEntity<>(booksDTO, HttpStatus.OK);
     }
 
     @GetMapping("${api.book.by.id}")
-    public ResponseEntity<Book> getBookById(@PathVariable Long id) {
+    public ResponseEntity<BookDTO> getBookById(@PathVariable Long id) {
         Book book = bookService.getBookById(id);
+        BookDTO bookDTO = BookServiceImpl.bookConvertToDTO(book);
         if (book != null) {
-            return new ResponseEntity<>(book, HttpStatus.OK);
+            return new ResponseEntity<>(bookDTO, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
-    @PostMapping("${api.base.url}")
-    public ResponseEntity<?> addBook(@Valid @RequestBody Book book, BindingResult bindingResult) {
+    /*
+     * @PostMapping("${api.book.base.url}")
+     * public ResponseEntity<?> addBook(@Valid @RequestBody Book book, BindingResult
+     * bindingResult) {
+     * if (bindingResult.hasErrors()) {
+     * List<String> errors = new ArrayList<>();
+     * for (FieldError error : bindingResult.getFieldErrors()) {
+     * errors.add(error.getField() + ": " + error.getDefaultMessage());
+     * }
+     * return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+     * }
+     * 
+     * bookService.addBook(book);
+     * return new ResponseEntity<>(HttpStatus.CREATED);
+     * }
+     */
+    @PostMapping("${api.book.base.url}")
+    public ResponseEntity<?> addBook(@Valid @RequestBody BookDTO bookDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errors = new ArrayList<>();
             for (FieldError error : bindingResult.getFieldErrors()) {
@@ -45,13 +64,33 @@ public class BookController {
             }
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
-        
-        bookService.addBook(book);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+
+        Book book = BookServiceImpl.bookDTOConvertToEntity(bookDTO);
+        Book savedBook = bookService.addBook(book);
+        BookDTO savedBookDTO = BookServiceImpl.bookConvertToDTO(savedBook);
+        return new ResponseEntity<>(savedBookDTO, HttpStatus.CREATED);
     }
 
+    /*
+     * @PutMapping("${api.book.by.id}")
+     * public ResponseEntity<?> updateBook(@PathVariable Long
+     * id, @Valid @RequestBody Book book,
+     * BindingResult bindingResult) {
+     * if (bindingResult.hasErrors()) {
+     * List<String> errors = new ArrayList<>();
+     * for (FieldError error : bindingResult.getFieldErrors()) {
+     * errors.add(error.getField() + ": " + error.getDefaultMessage());
+     * }
+     * return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+     * }
+     * 
+     * bookService.updateBook(id, book);
+     * return new ResponseEntity<>(HttpStatus.OK);
+     * }
+     */
+
     @PutMapping("${api.book.by.id}")
-    public ResponseEntity<?> updateBook(@PathVariable Long id, @Valid @RequestBody Book book, BindingResult bindingResult) {
+    public ResponseEntity<?> updateBook(@PathVariable Long id, @Valid @RequestBody BookDTO bookDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errors = new ArrayList<>();
             for (FieldError error : bindingResult.getFieldErrors()) {
@@ -60,8 +99,10 @@ public class BookController {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
 
-        bookService.updateBook(id, book);
-        return new ResponseEntity<>(HttpStatus.OK);
+        Book book = BookServiceImpl.bookDTOConvertToEntity(bookDTO);
+        Book updatedBook = bookService.updateBook(id, book);
+        BookDTO updatedBookDTO = BookServiceImpl.bookConvertToDTO(updatedBook);
+        return ResponseEntity.ok(updatedBookDTO);
     }
 
     @DeleteMapping("${api.book.by.id}")

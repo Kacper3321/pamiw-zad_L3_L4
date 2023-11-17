@@ -38,13 +38,13 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional // Zapewnia, że metoda jest wykonywana w kontekście transakcji
-    public void addBook(Book book) {
-        bookRepository.save(book); // Zapisuje książkę do bazy
+    public Book addBook(Book book) {
+        return bookRepository.save(book); // Zapisuje książkę do bazy
     }
 
     @Override
     @Transactional
-    public void updateBook(Long id, Book updatedBook) {
+    public Book updateBook(Long id, Book updatedBook) {
         Optional<Book> existingBookOptional = bookRepository.findById(id);
 
         if (existingBookOptional.isPresent()) {
@@ -52,7 +52,7 @@ public class BookServiceImpl implements BookService {
             existingBook.setTitle(updatedBook.getTitle());
             existingBook.setAuthor(updatedBook.getAuthor());
             existingBook.setYear(updatedBook.getYear());
-            bookRepository.save(existingBook); // Zapisuje zaktualizowaną książkę do bazy danych
+            return bookRepository.save(existingBook); // Zapisuje zaktualizowaną książkę do bazy danych
         } else {
             throw new ResourceNotFoundException("Book not found with id " + id);
         }
@@ -67,5 +67,24 @@ public class BookServiceImpl implements BookService {
         } else {
             return false; // Zwraca false, jeśli książki nie było w bazie danych
         }
+    }
+
+    //@Override
+    public static BookDTO bookConvertToDTO(Book book) {
+        BookDTO dto = new BookDTO();
+        dto.setId(book.getId());
+        dto.setTitle(book.getTitle());
+        dto.setAuthor(book.getAuthor());
+        dto.setYear(book.getYear());
+        return dto;
+    }
+
+    public static Book bookDTOConvertToEntity(BookDTO bookDTO) {
+        Book book = new Book();
+        book.setId(bookDTO.getId());
+        book.setTitle(bookDTO.getTitle());
+        book.setAuthor(bookDTO.getAuthor());
+        book.setYear(bookDTO.getYear());
+        return book;
     }
 }

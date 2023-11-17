@@ -7,9 +7,11 @@ public interface BookService {
 
     Book getBookById(Long id);
 
-    void addBook(Book book);
+    Book addBook(Book book);
 
-    void updateBook(Long id, Book book);
+    Book updateBook(Long id, Book book);
 
     boolean deleteBook(Long id);
+
+    //BookDTO bookConvertToDTO(Book book); 
 }
